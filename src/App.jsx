@@ -4,7 +4,6 @@ import FeaturedArtist from "./components/FeaturedArtist"
 import Navigation from "./components/Navigation"
 // import './App.css'
 
-
 function App() {
 
   return (
