@@ -7,10 +7,11 @@ import Navigation from "./components/Navigation"
 function App() {
 
   return (
-      <div style={{
+      <div className="root" style={{
         display: 'flex',
+        position: 'relative',
         flexDirection: 'column',
-        padding: '24px 24px',
+        padding: '24px',
         alignContent: 'center',
         width: '100vw',
         minWidth: '346px',

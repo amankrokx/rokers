@@ -1,44 +1,48 @@
 import mysql from 'mysql';
 /**
+create database rokers;
+use rokers;
+
 create table artists (
-	artistID integer auto_increment primary key,
+	artistID varchar(50) primary key,
     artistName varchar(100) not null,
-    artistImage mediumblob null,
+    artistImage varchar(1024) null,
     songCount integer default 0,
     favourite boolean default false
 );
 
 create table albums (
-	alubmID integer auto_increment primary key,
+	albumID varchar(50) primary key,
     albumName varchar(100) not null,
-    albumImage mediumblob null,
+    albumImage varchar(1024) null,
     songCount integer default 0,
     favourite boolean default false
 );
 
 create table playlists (
-	pid integer auto_increment primary key,
+	pid varchar(50) primary key,
     playlistName varchar(100) not null,
     favourite boolean default false,
     songCount integer default 0,
-    playCount integer default 0
+    playCount integer default 0,
+    spotify boolean default false
 );
 
 create table songs (
-	sid varchar(30) primary key,
+	sid varchar(50) primary key,
     title varchar(100) not null,
-    albumID integer null references albums(albumID),
+    albumID varchar(50)references albums(albumID),
     lastPlayed timestamp,
-    albumArt mediumblob null,
+    albumArt varchar(1024) null,
     length integer not null,
     playCount integer default 0,
-    pid integer null references playlists(pid),
+    pid varchar(50) null references playlists(pid),
     favourite boolean default false
 );
 
 create table songArtists (
-	sid varchar(30) not null,
-    artistID integer not null,
+	sid varchar(50) not null,
+    artistID varchar(50) not null,
     primary key(sid, artistID),
     foreign key(sid) references songs(sid),
     foreign key(artistID) references artists(artistID)

@@ -3,8 +3,10 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import { connection, insert } from './server/components/database/index.js';
-import youtube from 'youtube-search-api'
-import ytdl from 'ytdl-core';
+import { config } from "dotenv"
+import spotify from './server/spotify/index.js';
+
+config()
 // create express app
 const app = express();
 
@@ -13,7 +15,15 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // parse requests of content-type - application/json
 app.use(bodyParser.json())
 // enable cors
-app.use(cors());
+app.use((req, res, next) => {
+    res.header("Access-Control-Max-Age", "86400")
+    res.header("Access-Control-Allow-Origin", req.headers.origin) // restrict it to the required domain
+    // res.header("Access-Control-Allow-Origin", origins) // update to match the domain you will make the request from
+    res.header("Access-Control-Allow-Methods", "GET,POST")
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+    res.header("Access-Control-Allow-Credentials", "true")
+    next()
+})
 
 // define a simple route
 app.get('/',async (req, res) => {
@@ -55,16 +65,17 @@ app.get('/songs', (req, res) => {
 })
 
 // get song by id
-app.get('/song/:id', (req, res) => {
-    youtube.GetListByKeyword(req.params.id, false, 10, [{type: "video"}]).then((result) => {
-        ytdl.getInfo(result.items[0].id).then((info) => {
-            res.json(info);
-        }).catch((err) => {
-            console.log(err);
-        });
-    }).catch((err) => {
-        console.log(err);
-    });
+app.get('/search/:query', (req, res) => {
+    spotify.searchSong({
+        query : req.params.query,
+        limit : 10,
+        offset : 0,
+        type : 'track',
+    }).then(data => {
+        res.json(data)
+    }).catch(err => {
+        res.json(err)
+    })
     
     // connection.query(`SELECT * FROM songs WHERE sid = '${req.params.id}'`, (err, result) => {
     //     if (err) throw err;
