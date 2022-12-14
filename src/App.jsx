@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react"
 import Albums from "./components/Albums"
 import FeaturedArtist from "./components/FeaturedArtist"
 import Navigation from "./components/Navigation"
+import NowPlaying from "./components/NowPlaying"
+import RecentlyPlayed from "./components/RecentlyPlayed"
 // import './App.css'
 
 function App() {
@@ -23,8 +25,9 @@ function App() {
         <br></br>
         <Albums />
         <br></br>
+        <RecentlyPlayed />
         <br></br>
-        <div>fdsgdfg</div>
+        <NowPlaying />
         <div>fdsgdfg</div>
       </div>
   )

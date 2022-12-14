@@ -75,7 +75,12 @@ export default function Navigation() {
                         backgroundColor: "var(--container)",
                         borderRadius: 16,
                     }}
-                    onClick={() => setSearch(!search)}
+                    onClick={() => {
+                        setSearch(!search)
+                        setTimeout(() => {
+                            if (!search) searchInput.current.focus()
+                        }, 100)
+                    }}
                 >
                     <span className="material-icons-outlined" style={{ fontSize: 32 }}>
                         search
