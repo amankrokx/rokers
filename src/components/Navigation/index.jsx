@@ -1,52 +1,149 @@
-import React from "react";
+import React, { useState, useRef, useCallback } from "react";
+import { debounce } from "debounce"
+import bring from "../bring"
 import './index.css';
 
 export default function Navigation() {
+    const [search, setSearch] = useState(false);
+    const searchInput = useRef(null)
+    const [searchData, setSearchData] = useState({})
+    const [inTransit, setInTransit] = useState(false)
+    const [controller, setController] = useState(new AbortController())
+    // debounced search
+    const debouncedSearch = useCallback(
+        debounce(() => {
+            Search(searchInput.current.value);
+        }, 500),
+        []
+    );
+
+    function Search(query) {
+        if (query.length === 0) return
+        // abort previous request
+        if (inTransit)
+            controller.abort();
+
+        setInTransit(true)
+        bring({
+            path: "search/" + encodeURI(query),
+            options: {
+                signal: controller.signal,
+            },
+        })
+            .then(data => data.json())
+            .then(data => {
+                setInTransit(false)
+                setSearchData(data)
+            })
+    }
 
     return (
-        <nav
-            style={{
-                position: "relative",
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                // width: "100%"
-                
-            }}
-        >
-            <div
+        <>
+            <nav
+                className="topNav"
                 style={{
-                    height: "48px",
-                    width: "48px",
+                    position: "relative",
                     display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor: "var(--container)",
-                    borderRadius: 16,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    // width: "100%"
                 }}
             >
-                <span className="material-icons-outlined" style={{ fontSize: 32 }}>
-                    grid_view
-                </span>
-            </div>
-            <div>
-                Rokers
-            </div>
-            <div
-                style={{
-                    height: "48px",
-                    width: "48px",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor: "var(--container)",
-                    borderRadius: 16,
-                }}
-            >
-                <span className="material-icons-outlined" style={{ fontSize: 32 }}>
-                    search
-                </span>
-            </div>
-        </nav>
+                <div
+                    style={{
+                        height: "48px",
+                        width: "48px",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        backgroundColor: "var(--container)",
+                        borderRadius: 16,
+                    }}
+                >
+                    <span className="material-icons-outlined" style={{ fontSize: 32 }}>
+                        grid_view
+                    </span>
+                </div>
+                <div>Rokers</div>
+                <div
+                    style={{
+                        height: "48px",
+                        width: "48px",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        backgroundColor: "var(--container)",
+                        borderRadius: 16,
+                    }}
+                    onClick={() => setSearch(!search)}
+                >
+                    <span className="material-icons-outlined" style={{ fontSize: 32 }}>
+                        search
+                    </span>
+                </div>
+            </nav>
+            {search && (
+                <>
+                    <div className="cover" onClick={() => setSearch(false)}></div>
+                    <div className="search">
+                        <div className="searchBox">
+                            <input
+                                type="text"
+                                ref={searchInput}
+                                placeholder="Search"
+                                onKeyDown={e => {
+                                    if (e.key === "Enter") {
+                                        Search(searchInput.current.value)
+                                    }
+                                    // if alphanumeric key is pressed, call debouncedSearch()
+                                    if (e.key.match(/^[a-z0-9]+$/i)) debouncedSearch()
+                                }}
+                            />
+                            <span
+                                className="material-icons-outlined"
+                                style={{ fontSize: 32 }}
+                                onClick={() => {
+                                    if (searchInput.current.value.length > 0) searchInput.current.value = ""
+                                    else setSearch(false)
+                                }}
+                            >
+                                close
+                            </span>
+                        </div>
+                        <hr></hr>
+                        <div className="searchResults">
+                            {searchData.tracks &&
+                                searchData.tracks.items.map((item, index) => (
+                                    <div key={index} className="searchResult">
+                                        <div className="coverPhoto">
+                                            <img className="actual" src={item.album.images[item.album.images.length - 1].url} alt="AlbumArt" />
+                                            <img className="reflection" src={item.album.images[item.album.images.length - 1].url} alt="AlbumArt" />
+                                        </div>
+                                        <div className="info">
+                                            <div className="title">{item.name.length > 30 ? item.name.substring(0, 30) + " ..." : item.name}</div>
+                                            <div className="aa">
+                                                <div className="artist">
+                                                    {item.artists
+                                                        .map(value => value.name)
+                                                        .join(", ")
+                                                        .substring(0, 15)}
+                                                </div>{" "}
+                                                |<div className="album"> {item.album.name.substring(0, 15)}</div>
+                                            </div>
+                                        </div>
+                                        <div className="playArrow playButton">
+                                            <span className="material-icons-outlined" style={{ fontSize: 32 }}>
+                                                play_arrow
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            {!searchData.tracks && <center>Search for something</center>}
+                            {searchData.tracks && searchData.tracks.items.length === 0 && <center>No results found</center>}
+                        </div>
+                    </div>
+                </>
+            )}
+        </>
     )
 }
