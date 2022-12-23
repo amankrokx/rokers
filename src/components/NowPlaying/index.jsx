@@ -16,7 +16,9 @@ export default function NowPlaying() {
                 height: "112px",
                 borderRadius: 16,
                 bottom: 24,
+                width: "calc(100% - 32px)",
                 backgroundColor: "var(--container)",
+                zIndex: 98,
             }}
         >
             <div className="searchResult">
@@ -30,11 +32,7 @@ export default function NowPlaying() {
                         <div className="artist">amankrokx</div>|<div className="album">Bohra and tb</div>
                     </div>
                 </div>
-                <div className="playArrow playButton RadialProgress" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"
-                    style={{
-                        width: 64,
-                        height: 64,
-                    }}>
+                <div className="playArrow playButton RadialProgress" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
                     <span className="material-icons-outlined" style={{ fontSize: 32 }}>
                         play_arrow
                     </span>

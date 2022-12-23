@@ -18,7 +18,7 @@
     height: auto;
     min-height: 48px;
     display: flex;
-    width: calc(100% - 48px);
+    width: calc(100% - 32px);
     align-items: center;
     justify-content: flex-start;
     background-color: var(--container);
@@ -126,7 +126,7 @@
     border-radius: 16px;
     object-fit: cover;
     z-index: -1;
-    transform: scale(1.15) translate(8px, 8px);
-    filter: blur(12px) saturate(1.3) brightness(1.2) contrast(1.05);
+    transform: scale(0.9) translate(8px, 8px);
+    filter: blur(12px) saturate(1.3) brightness(2) contrast(1.05);
     height: calc(100% - 16px);
 }

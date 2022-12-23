@@ -34,19 +34,53 @@ export default function Navigation() {
             .then(data => {
                 setInTransit(false)
                 setSearchData(data)
+                console.log(data)
+            })
+    }
+
+    function playSong (track) {
+        console.log(track)
+        bring({
+            path: "play",
+            options: {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({track}),
+            },
+        })
+            .then(data => data.json())
+            .then(data => {
+                console.log(data)
             })
     }
 
     return (
         <>
+            <div
+                style={{
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    width: "100vw",
+                    height: "64px",
+                    backgroundColor: "var(--bg)",
+                    zIndex: 99,
+                    opacity: 0.9,
+                }}
+            ></div>
             <nav
                 className="topNav"
                 style={{
-                    position: "relative",
+                    position: "fixed",
+                    width: "calc(100% - 32px)",
                     display: "flex",
+                    height: "48px",
                     flexDirection: "row",
                     justifyContent: "space-between",
                     // width: "100%"
+                    zIndex: 100,
                 }}
             >
                 <div
@@ -64,7 +98,14 @@ export default function Navigation() {
                         grid_view
                     </span>
                 </div>
-                <div>Rokers</div>
+                <div style={{
+                     fontsize: "large",
+                     fontWeight: "bold",
+                     alignContent: "center",
+                    
+                    
+                }
+                }>Rokers</div>
                 <div
                     style={{
                         height: "48px",
@@ -136,7 +177,7 @@ export default function Navigation() {
                                                 |<div className="album"> {item.album.name.substring(0, 15)}</div>
                                             </div>
                                         </div>
-                                        <div className="playArrow playButton">
+                                        <div className="playArrow playButton" onClick={() => playSong(item)}>
                                             <span className="material-icons-outlined" style={{ fontSize: 32 }}>
                                                 play_arrow
                                             </span>
@@ -149,6 +190,11 @@ export default function Navigation() {
                     </div>
                 </>
             )}
+            <div
+                style={{
+                    height: "36px",
+                }}
+            ></div>
         </>
     )
 }

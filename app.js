@@ -1,9 +1,9 @@
 // create express server with modular js
 import express from 'express';
 import bodyParser from 'body-parser';
-import cors from 'cors';
 import { connection, insert } from './server/components/database/index.js';
 import { config } from "dotenv"
+import { exec } from 'child_process';
 import spotify from './server/spotify/index.js';
 
 config()
@@ -39,6 +39,29 @@ app.get('/',async (req, res) => {
         favourite : true
     });
     res.json({"result": result});
+})
+
+app.post('/play', (req, res) => {
+    console.log(req.body)
+    const url = "https://spotify-downloader.p.rapidapi.com/SpotifyDownloader?url="
+
+    const options = {
+        method: "GET",
+        headers: {
+            "X-RapidAPI-Key": "15be109401msh039dc334993a18cp1b9113jsn7f88dd5900bf",
+            "X-RapidAPI-Host": "spotify-downloader.p.rapidapi.com",
+        },
+    }
+
+    fetch(url + encodeURI(req.body.track.external_urls.spotify), options)
+        .then(res => res.json())
+        .then(json => {
+            exec(`ffplay ${json.audio.url}`).stdout.on("data", data => {
+                console.log(data)
+            })
+            res.json(json)
+        })
+        .catch(err => console.error("error:" + err))
 })
 
 // route to display all songs in html table

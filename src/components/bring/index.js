@@ -18,14 +18,15 @@ export default function bring({
         mode: "cors", // no-cors, *cors, same-origin
         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
         credentials: "include",
-        // headers: {
-        //     "Content-Type": "application/json",
-        // },
+        headers: {
+            // "Content-Type": (typeof options.body === "object") ? "application/json" : "text/plain",
+        },
         redirect: "follow", // manual, *follow, error
-        // body: formData // body data type must match "Content-Type" header
+        // body: ((typeof options.body === "object") ? JSON.stringify(options.body) : options.body || null),// body data type must match "Content-Type" header
         ...options,
     }
+    console.log("bring", path, options)
     // console.log(options)
-    path = path.includes("://") ? path : "http://localhost:3000" + (path.startsWith("/") ? path : "/" + path)
+    path = path.includes("://") ? path : "http://" + window.location.hostname + ":3000" + (path.startsWith("/") ? path : "/" + path)
         return fetch(path, options)
 }

@@ -13,7 +13,7 @@ function App() {
         display: 'flex',
         position: 'relative',
         flexDirection: 'column',
-        padding: '24px',
+        padding: '8px 16px',
         alignContent: 'center',
         width: '100vw',
         minWidth: '346px',
@@ -26,6 +26,12 @@ function App() {
         <Albums />
         <br></br>
         <RecentlyPlayed />
+        <br></br>
+        <br></br>
+        <br></br>
+        <br></br>
+        <br></br>
+        <br></br>
         <br></br>
         <NowPlaying />
         <div>fdsgdfg</div>
