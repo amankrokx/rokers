@@ -92,7 +92,7 @@ class Spotify {
                 // get audio buffer from ytdl
                 let info = await ytdl.getInfo(id);
                 let format = ytdl.chooseFormat(info.formats, { quality: '251' });
-                console.log('Format found!', format.url);
+                // console.log('Format found!', format.url);
                 resolve(format.url)
                 // stroe readable stream in a buffer
                 // const readable = ytdl.downloadFromInfo(info, { format: format })

@@ -1,24 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
+import bring from "../bring";
 import weekend from "../../assets/weekend.avif";
 import ashiqui2 from "../../assets/ashiqui.jpg";
 import idiots from "../../assets/idiots.jpg";
 import "./index.css";
 
 export default function Albums() {
-    const [albums, setAlbums] = React.useState([
-        {
-            name: "Ashiqui 2",
-            featured: true,
-            image: ashiqui2,
-            artist: "Arjit Singh",
-        },
-        {
-            name: "3 Idiots",
-            featured: true,
-            image: idiots,
-            artist: "Amir Khan",
-        },
-    ])
+    const [albums, setAlbums] = React.useState([])
+
+    useEffect(() => {
+        // fetch albums
+        bring({path: "albums"})
+        .then((data) => data.json())
+        .then((albums) => {
+            setAlbums(albums)
+            console.log(albums)
+        })
+    }, [])
+
     return (
         <div
             style={{
@@ -48,9 +47,7 @@ export default function Albums() {
                 >
                     Albums
                 </span>
-                <span className="seeAll">
-                    See all
-                </span>
+                <span className="seeAll">See all</span>
             </div>
             <div
                 style={{
@@ -63,20 +60,22 @@ export default function Albums() {
                     paddingTop: 16,
                 }}
             >
-                {albums.map((album, index) => (
-                    <article className="albums" style={{ backgroundImage: `url(${album.image})` }}>
-                        <div className="albumControlWrapper">
-                            <div className="albumNameAndArtist">
-                                <span>{album.name}</span>
-                                <span>{album.artist}</span>
+                {albums &&
+                    albums.length > 0 &&
+                    albums.map((album, index) => (
+                        <article key={album.albumID} className="albums" style={{ backgroundImage: `url(${album.albumImage})` }}>
+                            <div className="albumControlWrapper">
+                                <div className="albumNameAndArtist">
+                                    <span>{album.albumName}</span>
+                                    {/* <span>{album.artist}</span> */}
+                                </div>
+                                <div className="playArrow">
+                                    <span className="material-icons-outlined">play_arrow</span>
+                                </div>
                             </div>
-                            <div className="playArrow">
-                                <span className="material-icons-outlined">play_arrow</span>
-                            </div>
-                        </div>
-                        <img className="albumReflection" src={album.image} />
-                    </article>
-                ))}
+                            <img className="albumReflection" src={album.albumImage} />
+                        </article>
+                    ))}
             </div>
         </div>
     )

@@ -52,27 +52,23 @@ class PlaybackQueue {
     
     // play song with ffplay using exec
     async playSong (url) {
-        try {
-            // play url with ffplay using exec
-            this.child = exec(`ffplay -nodisp -autoexit -hide_banner -loglevel quiet -i "${url}"`)
-            this.songInMemory = true
-            this.child.on('exit', () => {
-                this.songInMemory = false
-                if (this.repeat) {
-                    this.resumePlayback(this.currentSongIndex)
-                } else if (this.currentSongIndex < this.queue.length - 1) {
-                    this.resumePlayback(this.currentSongIndex + 1)
-                } else {
-                    this.stopPlayback()
-                }
-            })
-            this.child.on('error', (error) => {
-                throw error
-            })
-            return true
-        } catch (error) {
-            throw error
+        if (this.child) {
+            this.child.kill()
+            this.child = null
         }
+        this.songInMemory = true
+        this.child = exec(`ffplay -nodisp -autoexit -hide_banner -loglevel quiet "${url}"`)
+        this.child.on('exit', () => {
+            this.songInMemory = false
+            this.child = null
+            if (this.repeat) {
+                this.resumePlayback(this.currentSongIndex)
+            } else if (this.currentSongIndex + 1 < this.queue.length) {
+                this.resumePlayback(this.currentSongIndex + 1)
+            } else {
+                this.stopPlayback()
+            }
+        })
 
     }
 
@@ -82,7 +78,7 @@ class PlaybackQueue {
             this.playing = true
             this.paused = false
         }
-        else throw new Error("No child process")
+        else console.log("No child process")
     }
 
     pausePlayback() {
@@ -91,7 +87,7 @@ class PlaybackQueue {
             this.playing = false
             this.paused = true
         }
-        else throw new Error("No child process")
+        else console.log("No child process")
     }
 
     stopPlayback() {
@@ -103,7 +99,7 @@ class PlaybackQueue {
             this.paused = false
             this.currentSongIndex = null
         }
-        else throw new Error("No child process")
+        else console.log("No child process")
     }
 
 

@@ -1,7 +1,7 @@
 // create express server with modular js
 import express from 'express';
 import bodyParser from 'body-parser';
-import { connection, insert } from './server/components/database/index.js';
+import { connection, insert, query } from './server/components/database/index.js';
 import { config } from "dotenv"
 import spotify from './server/spotify/index.js';
 import queue from './server/components/queue/index.js';
@@ -43,41 +43,129 @@ app.get('/',async (req, res) => {
 
 app.post('/play', async (req, res) => {
     try {
-        console.log(req.body)
+        // inxert song into database
+        // get youtube id
         const track = req.body.track
-        const id = await spotify.getSongYoutube(track)
-        console.log(id)
-        const buffer = await spotify.getSongYoutubeBuffer(id)
-        console.log(buffer)
-        await queue.playSong(buffer)
+
+        // query from songs table to see if song exists
+        // if it does, update playCount
+        // if it doesn't, insert into songs table
+        let id
+        const song = await query(`SELECT * FROM songs WHERE sid = '${track.id}'`)
+        console.log(song)
+        if (song.length > 0) {
+            // update playCount in songs table, update lastPlayed 
+            await query(`UPDATE songs SET playCount = playCount + 1 WHERE sid = '${track.id}'`)
+        } else {
+            id = await spotify.getSongYoutube(track)
+            console.log(id)
+            await insert('songs', {  
+                sid : req.body.track.id,
+                vid : id,
+                name : req.body.track.name,
+                albumID : req.body.track.album.id,
+                lastPlayed : new Date(),
+                albumArt : req.body.track.album.images[0].url,
+                length : req.body.track.duration_ms,
+                playCount : 1,
+                // pid : 1,
+                favourite : false
+            });
+            // Populate artists table
+            req.body.track.artists.forEach(async artist => {
+                // query from artists table to see if artist exists
+                // if it does, update songCount
+                // if it doesn't, insert into artists table
+                const artistQuery = await query(`SELECT * FROM artists WHERE artistID = '${artist.id}'`)
+                if (artistQuery.length > 0) {
+                    await query(`UPDATE artists SET songCount = songCount + 1 WHERE artistID = '${artist.id}'`)
+                } else {
+                    await insert("artists", {
+                        artistID: artist.id,
+                        artistName: artist.name,
+                        songCount: 1,
+                        favourite: false,
+                    })
+                }
+                await insert('songArtists', {
+                    sid : req.body.track.id,
+                    artistID : artist.id
+                })
+            })
+            // Populate albums table    
+            // query from albums table to see if album exists
+            // if it does, update songCount
+            // if it doesn't, insert into albums table
+            const album = await query(`SELECT * FROM albums WHERE albumID = '${req.body.track.album.id}'`)
+            if (album.length > 0) {
+                await query(`UPDATE albums SET songCount = songCount + 1 WHERE albumID = '${req.body.track.album.id}'`)
+            } else {
+                await insert("albums", {
+                    albumID: req.body.track.album.id,
+                    albumName: req.body.track.album.name,
+                    albumImage: req.body.track.album.images[0].url,
+                    songCount: 1,
+                    favourite: false,
+                })
+            }
+        }
+        console.log(song.length)
+        const buffer = await spotify.getSongYoutubeBuffer((song.length > 0) ? song[0].vid : id)
+        queue.addSong(buffer)
         res.json({id})
     } catch (error) {
         throw error
     }
 
 })
+function a(s) {
+    console.log(s)
+}
+// return array of albums on GET request
+app.get('/albums', async (req, res) => {
+    // get albums from database, find songs in each album and their artists
+    let albums = await query("SELECT * FROM albums order by favourite desc")
+    // let artists_ = []
+    // albums.forEach(async (album, index) => {
+    //     album.songs = await query(`SELECT * FROM songs WHERE albumID = '${album.albumID}'`)
+    //     album.songs.forEach(async (song) => {
+    //         song.artists = await query(`SELECT * FROM songArtists WHERE sid = '${song.sid}'`)
+    //         song.artists.forEach(async artist => {
+    //             artist.artist = await query(`SELECT * FROM artists WHERE artistID = '${artist.artistID}'`)
+    //             artists_.push(artist.artist[0].artistName)
+    //             // console.log(artist.artist[0])
+    //             a(artist.artist[0].artistName)
+    //         })
+    //     })
+    //     console.log(artists_)
+    //     albums[index].artists = artists_
+    // })
+    
+    // console.log(albums)
+    res.json(albums)
+})
 
 // route to display all songs in html table
 app.get('/songs', (req, res) => {
-    connection.query('SELECT * FROM songs', (err, result) => {
-        if (err) throw err;
+    connection.query("SELECT * FROM songs inner join albums on songs.albumID = albums.albumID;", (err, result) => {
+        if (err) throw err
         // create html table with data
-        let html = '<table border=1|1>';
-        html += '<tr>';
+        let html = "<table border=1|1>"
+        html += "<tr>"
         for (let key in result[0]) {
-            html += `<th>${key}</th>`;
+            html += `<th>${key}</th>`
         }
-        html += '</tr>';
+        html += "</tr>"
         result.forEach(row => {
-            html += '<tr>';
+            html += "<tr>"
             for (let key in row) {
-                html += `<td>${row[key]}</td>`;
+                html += `<td>${row[key]}</td>`
             }
-            html += '</tr>';
-        });
-        html += '</table>';
-        res.send(html);
-    });
+            html += "</tr>"
+        })
+        html += "</table>"
+        res.send(html)
+    })
 })
 
 // get song by id
