@@ -25,9 +25,9 @@ export default function bring({
         // body: ((typeof options.body === "object") ? JSON.stringify(options.body) : options.body || null),// body data type must match "Content-Type" header
         ...options,
     }
-    console.log("bring", path, options)
     // console.log(options)
-
+    
     path = path.includes("://") ? path : window.location.href + (path.startsWith("/") ? path.slice(1, path.length - 1) : path)
-        return fetch(path, options)
+    console.log("bring", path, options)
+    return fetch(path, options)
 }

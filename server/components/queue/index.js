@@ -57,7 +57,7 @@ class PlaybackQueue {
             this.child = null
         }
         this.songInMemory = true
-        this.child = exec(`ffplay -nodisp -autoexit -hide_banner -loglevel quiet "${url}"`)
+        this.child = exec(`omxplayer "${url}" -o alsa:hw:1`)
         this.child.on('exit', () => {
             this.songInMemory = false
             this.child = null

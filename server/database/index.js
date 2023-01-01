@@ -51,11 +51,14 @@ create table songArtists (
     */
 
 const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'root',
-    database: 'rokers'
-});
+    host: "localhost",
+    user: "root",
+    password: "root",
+    database: "rokers",
+    port: 3306,
+    multipleStatements: true,
+    insecureAuth: true,
+})
 
 const properties = {
     songs : [],
