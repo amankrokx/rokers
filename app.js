@@ -25,6 +25,8 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Credentials", "true")
     next()
 })
+// serve static files from /dist
+app.use(express.static('dist'))
 
 // define a simple route
 app.get('/',async (req, res) => {

@@ -1,3 +1,5 @@
+const backpath = "http://" + window.location.hostname + ":" + "3000"
+
 export default function bring({
     path,
     options = {
