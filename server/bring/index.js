@@ -1,5 +1,3 @@
-const backpath = window.location.href + ":" + "3000"
-
 export default function bring({
     path,
     options = {
@@ -28,7 +26,6 @@ export default function bring({
         ...options,
     }
     // console.log(options)
-    path = path.includes("://") ? path : backPath + (path.startsWith("/") ? path : "/" + path)
     return new Promise((resolve, reject) => {
         fetch(path, options)
             .then(response => {
