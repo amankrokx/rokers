@@ -54,7 +54,9 @@ const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'root',
-    database: 'rokers'
+    database: 'rokers',
+    port: 3306,
+    insecureAuth: true
 });
 
 const properties = {
