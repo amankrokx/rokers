@@ -1,12 +1,11 @@
 import React, { useEffect } from "react";
 import bring from "../bring";
-import weekend from "../../assets/weekend.avif";
-import ashiqui2 from "../../assets/ashiqui.jpg";
-import idiots from "../../assets/idiots.jpg";
 import "./index.css";
 
 export default function Albums() {
     const [albums, setAlbums] = React.useState([])
+    const albumContainer = React.useRef(null)
+    const [open, setOpen] = React.useState(false)
 
     useEffect(() => {
         // fetch albums
@@ -18,16 +17,16 @@ export default function Albums() {
         })
     }, [])
 
+    const toggleExpand = () => {
+        albumContainer.current.classList.toggle("expand")
+        albumContainer.current.classList.toggle("albumContainer")
+        setOpen(!open)
+    }
+
     return (
         <div
-            style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                alignItems: "center",
-                width: "100%",
-                margin: "16px 0 0 0",
-            }}
+            ref={albumContainer}
+            className="albumContainer"
         >
             <div
                 style={{
@@ -36,6 +35,7 @@ export default function Albums() {
                     justifyContent: "space-between",
                     alignItems: "center",
                     width: "100%",
+                    padding: 16
                 }}
             >
                 <span
@@ -47,7 +47,8 @@ export default function Albums() {
                 >
                     Albums
                 </span>
-                <span className="seeAll">See all</span>
+                {!open && <span className="seeAll" onClick={toggleExpand}>See all</span>}
+                {open && <span className="material-icons" onClick={toggleExpand}>close</span>}
             </div>
             <div
                 style={{
@@ -57,12 +58,11 @@ export default function Albums() {
                     alignItems: "center",
                     width: "100%",
                     flexWrap: "wrap",
-                    paddingTop: 16,
                 }}
             >
                 {albums &&
                     albums.length > 0 &&
-                    albums.map((album, index) => (
+                    albums.map((album, index) => (!open && index > 1) ? null : (
                         <article key={album.albumID} className="albums" style={{ backgroundImage: `url(${album.albumImage})` }}>
                             <div className="albumControlWrapper">
                                 <div className="albumNameAndArtist">

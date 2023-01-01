@@ -1,10 +1,11 @@
 // create express server with modular js
 import express from 'express';
 import bodyParser from 'body-parser';
-import { connection, insert, query } from './server/components/database/index.js';
+import { connection, insert, query } from './server/database/index.js';
 import { config } from "dotenv"
 import spotify from './server/spotify/index.js';
 import queue from './server/components/queue/index.js';
+import featuredArtist from './server/components/featuredArtist/index.js';
 
 config()
 // create express app
@@ -186,6 +187,9 @@ app.get('/search/:query', (req, res) => {
     //     res.json(result);
     // });
 })
+
+// get featured artist name and album art
+app.get('/featuredArtist', featuredArtist)
 
 // listen for requests
 app.listen(3000, () => {

@@ -19,6 +19,9 @@ export default function NowPlaying() {
                 width: "calc(100% - 32px)",
                 backgroundColor: "var(--container)",
                 zIndex: 98,
+                minWidth: "346px",
+                maxWidth: "440px",
+                margin: "0 -8px",
             }}
         >
             <div className="searchResult">

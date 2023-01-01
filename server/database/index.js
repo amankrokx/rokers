@@ -30,7 +30,8 @@ create table playlists (
 
 create table songs (
 	sid varchar(50) primary key,
-    title varchar(100) not null,
+    vid varchar(50) null,
+    name varchar(100) not null,
     albumID varchar(50)references albums(albumID),
     lastPlayed timestamp,
     albumArt varchar(1024) null,
@@ -102,6 +103,14 @@ function insert (table, data) {
     });
 }
 
+function query (query) {
+    return new Promise((resolve, reject) => {
+        connection.query(query, (err ,result) => {
+            if (err) reject(err);
+            resolve(result);
+        })
+    })
+}
 
 
-export {insert, connection}
+export {insert, connection, query}

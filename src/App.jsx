@@ -15,14 +15,12 @@ function App() {
         flexDirection: 'column',
         padding: '8px 16px',
         alignContent: 'center',
-        width: '100vw',
         minWidth: '346px',
         maxWidth: '440px',
       }}>
         <Navigation />
         <br></br>
         <FeaturedArtist />
-        <br></br>
         <Albums />
         <br></br>
         <RecentlyPlayed />

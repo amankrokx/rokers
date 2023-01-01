@@ -53,11 +53,15 @@ body {
   font-weight: bold;
   color: var(--ic);
   transform: scale(1);
-  transition: transform 0.2s ease-in-out;
+  background-color: transparent;
+  border-radius: 99999px;
+  padding: 0 8px;
+  transition: all 0.2s ease-in-out;
 }
 
 .seeAll:hover {
   transform: scale(1.1);
+  background-color: #72779733;
 }
 
 .cover {
@@ -71,7 +75,7 @@ body {
 }
 
 
-@media (prefers-color-scheme: light) {
+/* @media (prefers-color-scheme: light) { */
   :root {
     --pt: #0E060F;
     --st: #9699a3;
@@ -84,9 +88,9 @@ body {
     color: var(--pt);
     background-color: var(--bg);
   }
-}
+/* } */
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --lt: #FFFFFF;
     --pt: #ECECF4;
@@ -98,4 +102,4 @@ body {
     color: var(--pt);
     background-color: var(--bg);
   }
-}
+} */

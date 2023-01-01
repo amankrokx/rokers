@@ -74,16 +74,22 @@ export default function Navigation() {
                 className="topNav"
                 style={{
                     position: "fixed",
+                    // top: 0,
+                    // left: 0,
+                    margin: "0 -8px",
                     width: "calc(100% - 32px)",
                     display: "flex",
                     height: "48px",
                     flexDirection: "row",
                     justifyContent: "space-between",
+                    minWidth: "346px",
+                    maxWidth: "440px",
                     // width: "100%"
                     zIndex: 100,
                 }}
             >
                 <div
+                    className="playArrow"
                     style={{
                         height: "48px",
                         width: "48px",
@@ -98,15 +104,17 @@ export default function Navigation() {
                         grid_view
                     </span>
                 </div>
-                <div style={{
-                     fontsize: "large",
-                     fontWeight: "bold",
-                     alignContent: "center",
-                    
-                    
-                }
-                }>Rokers</div>
                 <div
+                    style={{
+                        fontsize: "large",
+                        fontWeight: "bold",
+                        alignContent: "center",
+                    }}
+                >
+                    Rokers
+                </div>
+                <div
+                    className="playArrow"
                     style={{
                         height: "48px",
                         width: "48px",
@@ -173,8 +181,8 @@ export default function Navigation() {
                                                         .map(value => value.name)
                                                         .join(", ")
                                                         .substring(0, 15)}
-                                                </div>{" "}
-                                                |<div className="album"> {item.album.name.substring(0, 15)}</div>
+                                                </div>
+                                                <div className="album"> {item.album.name.substring(0, 15)}</div>
                                             </div>
                                         </div>
                                         <div className="playArrow playButton" onClick={() => playSong(item)}>
