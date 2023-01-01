@@ -1,4 +1,4 @@
-const backpath = "http://" + window.location.hostname + ":" + "3000"
+const backpath = window.location.href + ":" + "3000"
 
 export default function bring({
     path,
