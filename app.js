@@ -7,6 +7,7 @@ import spotify from './server/spotify/index.js';
 import queue from './server/components/queue/index.js';
 import featuredArtist from './server/components/featuredArtist/index.js';
 
+
 config()
 // create express app
 const app = express();
@@ -27,6 +28,7 @@ app.use((req, res, next) => {
 })
 // serve static files from /dist
 app.use(express.static('dist'))
+
 
 // define a simple route
 app.get('/',async (req, res) => {
@@ -128,23 +130,6 @@ function a(s) {
 app.get('/albums', async (req, res) => {
     // get albums from database, find songs in each album and their artists
     let albums = await query("SELECT * FROM albums order by favourite desc")
-    // let artists_ = []
-    // albums.forEach(async (album, index) => {
-    //     album.songs = await query(`SELECT * FROM songs WHERE albumID = '${album.albumID}'`)
-    //     album.songs.forEach(async (song) => {
-    //         song.artists = await query(`SELECT * FROM songArtists WHERE sid = '${song.sid}'`)
-    //         song.artists.forEach(async artist => {
-    //             artist.artist = await query(`SELECT * FROM artists WHERE artistID = '${artist.artistID}'`)
-    //             artists_.push(artist.artist[0].artistName)
-    //             // console.log(artist.artist[0])
-    //             a(artist.artist[0].artistName)
-    //         })
-    //     })
-    //     console.log(artists_)
-    //     albums[index].artists = artists_
-    // })
-    
-    // console.log(albums)
     res.json(albums)
 })
 
@@ -192,6 +177,33 @@ app.get('/search/:query', (req, res) => {
 
 // get featured artist name and album art
 app.get('/featuredArtist', featuredArtist)
+
+app.get('/playPause/:s', (req,res) => {
+    if (req.params.s == 'play') queue.resumePlayback()
+    else if (req.params.s == 'pause') queue.pausePlayback()
+    else if (req.params.s == 'next') queue.playNext()
+    else if (req.params.s == 'prev') queue.prevSong()
+    else if (req.params.s == 'repeat') queue.repeatKro()
+    else if (req.params.s == 'stop') queue.stopPlayback()
+    else 
+    res.json({status : queue.playing})
+})
+
+app.get("/featuredArtistSongs/:id", async (req, res) => {
+    // get song details from artistID
+    try {
+        const artistID = req.params.id
+        console.log(artistID)
+        connection.query(`select * from songs join songArtists on songs.sid = songArtists.sid where songArtists.artistID = '${artistID}';`, (err, result) => {
+            if (err) throw err
+            console.log(result)
+            res.json(result)
+        })
+        
+    } catch (error) {
+        res.json(error)
+    }
+})
 
 // listen for requests
 app.listen(3000, () => {

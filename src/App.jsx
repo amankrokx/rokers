@@ -4,9 +4,14 @@ import FeaturedArtist from "./components/FeaturedArtist"
 import Navigation from "./components/Navigation"
 import NowPlaying from "./components/NowPlaying"
 import RecentlyPlayed from "./components/RecentlyPlayed"
+import SnackbarUtils from "./components/SnackbarUtils"
 // import './App.css'
 
 function App() {
+
+  useEffect(() => {
+    SnackbarUtils.info("Welcome to Rokers!")
+  }, [])
 
   return (
       <div className="root" style={{
@@ -32,7 +37,7 @@ function App() {
         <br></br>
         <br></br>
         <NowPlaying />
-        <div>fdsgdfg</div>
+        <div>Hello</div>
       </div>
   )
 }

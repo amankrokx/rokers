@@ -50,3 +50,6 @@ create table songArtists (
 -- Select all columns of most popular artist from the database based on play count from songs table and favourites
 select artistName, artists.artistID, songCount, artistImage, artists.favourite, count(*) as playCount from artists join songArtists on artists.artistID = songArtists.artistID join songs on songArtists.sid = songs.sid order by playCount desc limit 1;
 select artistName, count(*) as playCount from artists join songArtists on artists.artistID = songArtists.artistID join songs on songArtists.sid = songs.sid group by artistName order by playCount desc limit 1;
+
+-- get all songs from artistID
+select * from songs join songArtists on songs.sid = songArtists.sid where songArtists.artistID = 'artistID';

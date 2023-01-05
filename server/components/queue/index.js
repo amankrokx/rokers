@@ -57,7 +57,7 @@ class PlaybackQueue {
             this.child = null
         }
         this.songInMemory = true
-        this.child = exec(`omxplayer "${url}" -o alsa:hw:1`)
+        this.child = exec(`ffplay "${url}"`)
         this.child.on('exit', () => {
             this.songInMemory = false
             this.child = null
@@ -90,6 +90,38 @@ class PlaybackQueue {
         else console.log("No child process")
     }
 
+    playNext() {
+        if (this.child) {
+            this.child.kill()
+            this.child = null
+            this.songInMemory = false
+        }
+        if (this.currentSongIndex + 1 < this.queue.length) {
+            this.resumePlayback(this.currentSongIndex + 1)
+        } else {
+            this.stopPlayback()
+        }
+    }
+
+    prevSong() {
+        if (this.child) {
+            this.child.kill()
+            this.child = null
+            this.songInMemory = false
+        }
+        if (this.currentSongIndex - 1 >= 0) {
+            this.resumePlayback(this.currentSongIndex - 1)
+        } else {
+            this.stopPlayback()
+        }
+    }
+
+    repeatKro() {
+        this.repeat = !this.repeat
+    }
+
+
+
     stopPlayback() {
         if (this.child) {
             this.queue = []
@@ -99,7 +131,7 @@ class PlaybackQueue {
             this.paused = false
             this.currentSongIndex = null
         }
-        else console.log("No child process")
+        else console.log("No child process bsdk")
     }
 
 
