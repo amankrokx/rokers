@@ -39,7 +39,6 @@ export default function Navigation() {
     }
 
     function playSong (track) {
-        console.log(track)
         bring({
             path: "play",
             options: {
@@ -53,6 +52,7 @@ export default function Navigation() {
             .then(data => data.json())
             .then(data => {
                 console.log(data)
+                setSearch(false)
             })
     }
 
@@ -185,7 +185,9 @@ export default function Navigation() {
                                                 <div className="album"> {item.album.name.substring(0, 15)}</div>
                                             </div>
                                         </div>
-                                        <div className="playArrow playButton" onClick={() => playSong(item)}>
+                                        <div className="playArrow playButton" onClick={() => {
+                                            playSong(item)
+                                        }}>
                                             <span className="material-icons-outlined" style={{ fontSize: 32 }}>
                                                 play_arrow
                                             </span>

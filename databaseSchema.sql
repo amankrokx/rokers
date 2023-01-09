@@ -53,3 +53,6 @@ select artistName, count(*) as playCount from artists join songArtists on artist
 
 -- get all songs from artistID
 select * from songs join songArtists on songs.sid = songArtists.sid where songArtists.artistID = 'artistID';
+
+-- get recently played songs with album name limit 10 and offset 3
+select * from songs join albums on songs.albumID = albums.albumID order by lastPlayed desc limit 10 offset 3;

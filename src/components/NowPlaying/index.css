@@ -58,7 +58,7 @@
 
 .RadialProgress {
     --hue: 220;
-    --holesize: 65%;
+    --holesize: 60%;
     --track-bg: hsl(233, 34%, 92%);
     --progress: 35%;
     
@@ -76,7 +76,7 @@
 .RadialProgress::before {
     --progress: 35%;
     --hue: 220;
-    --holesize: 65%;
+    --holesize: 60%;
     --track-bg: hsl(233, 34%, 92%);
     content: '';
     position: absolute;

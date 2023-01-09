@@ -57,7 +57,10 @@ class PlaybackQueue {
             this.child = null
         }
         this.songInMemory = true
-        this.child = exec(`ffplay "${url}"`)
+        this.child = exec(`vlc -I dummy --dummy-quiet "${url}"`)
+        this.child.on('message', (message) => {
+            console.log(message)
+        })
         this.child.on('exit', () => {
             this.songInMemory = false
             this.child = null

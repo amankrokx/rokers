@@ -115,17 +115,16 @@ app.post('/play', async (req, res) => {
             }
         }
         console.log(song.length)
+        res.json({id})
         const buffer = await spotify.getSongYoutubeBuffer((song.length > 0) ? song[0].vid : id)
         queue.addSong(buffer)
-        res.json({id})
     } catch (error) {
+        res.json({error})
         throw error
     }
 
 })
-function a(s) {
-    console.log(s)
-}
+
 // return array of albums on GET request
 app.get('/albums', async (req, res) => {
     // get albums from database, find songs in each album and their artists
@@ -202,6 +201,50 @@ app.get("/featuredArtistSongs/:id", async (req, res) => {
         
     } catch (error) {
         res.json(error)
+    }
+})
+
+app.get("/recentlyPlayed/:limit/:offset", async (req, res) => {
+    // get recently played songs by limit and offset
+
+    try {
+        const limit = req.params.limit
+        const offset = req.params.offset
+        console.log(limit, offset)
+
+        const songs = await query(`select * from songs join albums on songs.albumID = albums.albumID order by lastPlayed desc limit ${limit} offset ${offset};`)
+        res.json(songs)
+    } catch (error) {
+        res.json({error})
+    }
+})
+
+app.get("/favouriteSongs/:limit/:offset", async (req, res) => {
+    // get favourite songs by limit and offset
+
+    try {
+        const limit = req.params.limit
+        const offset = req.params.offset
+        console.log(limit, offset)
+
+        const songs = await query(`select * from songs join albums on songs.albumID = albums.albumID where favourite = true order by lastPlayed desc limit ${limit} offset ${offset};`)
+        res.json(songs)
+    } catch (error) {
+        res.json({error})
+    }
+})
+
+app.get("/syncPlayer", async (req, res) => {
+    // sync player with queue
+    try {
+        res.json({
+            playing : queue.playing,
+            repeat : queue.repeat,
+            song : queue.queue[queue.currentSongIndex],
+            volume : queue.volume,
+        })
+    } catch (error) {
+        res.json({error})
     }
 })
 

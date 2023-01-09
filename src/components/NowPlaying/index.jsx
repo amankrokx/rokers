@@ -2,6 +2,12 @@ import React from "react";
 import "./index.css"
 import photo from "../../assets/ashiqui.jpg"
 
+class Player {
+    constructor() {
+        this.audio = new Audio();
+    }
+}
+
 export default function NowPlaying() {
 
     return (

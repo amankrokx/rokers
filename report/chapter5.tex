@@ -1,0 +1,23 @@
+\chapter{JavaScript-MySQL Database Connectivity}
+To connect to a MySQL database from a JavaScript app, you will need to use a MySQL library for JavaScript.\\
+
+\section{Database Schema}
+Once the library is installed, you can use the following code to create a connection to a MySQL database:
+
+const mysql = require('mysql2');
+
+const connection = mysql.createConnection({
+  host: 'localhost',
+  user: 'your-username',
+  password: 'your-password',
+  database: 'your-database'
+});
+
+connection.connect(function(err) {
+  if (err) throw err;
+  console.log('Connected to the database!');
+});
+\\
+
+
+
