@@ -1,4 +1,5 @@
 // create express server with modular js
+import { exec } from 'child_process';
 import express from 'express';
 import bodyParser from 'body-parser';
 import { connection, insert, query } from './server/database/index.js';
@@ -6,7 +7,6 @@ import { config } from "dotenv"
 import spotify from './server/spotify/index.js';
 import queue from './server/components/queue/index.js';
 import featuredArtist from './server/components/featuredArtist/index.js';
-
 
 config()
 // create express app
@@ -251,4 +251,43 @@ app.get("/syncPlayer", async (req, res) => {
 // listen for requests
 app.listen(3000, () => {
     console.log("Server is listening on port 3000");
+    // run ngrok
+    const ngrok = exec('ngrok http 3000')
+    ngrok.stdout.on('data', (data) => {
+        console.log(data)
+    })
+    const interval = setInterval(() => {
+        if (ngrok.pid) {
+            fetch("http://127.0.0.1:4040/api/tunnels", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data.tunnels[0].public_url)
+                    const body = new FormData()
+                    body.append("url", data.tunnels[0].public_url)
+                    console.log(body)
+                    fetch("https://rokerss.000webhostapp.com/", {
+                        method: "POST",
+                        body
+                    })
+                        .then(res => res.text())
+                        .then(data => {
+                            console.log(data)
+                            clearInterval(interval)
+                        })
+                        .catch(err => {
+                            console.log(err)
+                        })
+                })
+                .catch(err => {
+                    console.log(err)
+                })
+        }
+    }, 2000)
+
+
 });
