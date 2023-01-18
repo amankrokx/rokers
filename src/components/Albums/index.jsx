@@ -24,10 +24,7 @@ export default function Albums() {
     }
 
     return (
-        <div
-            ref={albumContainer}
-            className="albumContainer"
-        >
+        <div ref={albumContainer} className="albumContainer">
             <div
                 style={{
                     display: "flex",
@@ -35,7 +32,7 @@ export default function Albums() {
                     justifyContent: "space-between",
                     alignItems: "center",
                     width: "100%",
-                    padding: 16
+                    padding: 16,
                 }}
             >
                 <span
@@ -47,8 +44,16 @@ export default function Albums() {
                 >
                     Albums
                 </span>
-                {!open && <span className="seeAll" onClick={toggleExpand}>See all</span>}
-                {open && <span className="material-icons" onClick={toggleExpand}>close</span>}
+                {!open && (
+                    <span className="seeAll" onClick={toggleExpand}>
+                        See all
+                    </span>
+                )}
+                {open && (
+                    <span className="material-icons" onClick={toggleExpand}>
+                        close
+                    </span>
+                )}
             </div>
             <div
                 style={{
@@ -58,24 +63,29 @@ export default function Albums() {
                     alignItems: "center",
                     width: "100%",
                     flexWrap: "wrap",
+                    overflowY: "scroll",
+                    whiteSpace: "pre-line",
+                    height: "calc(100% - 64px)",
                 }}
             >
                 {albums &&
                     albums.length > 0 &&
-                    albums.map((album, index) => (!open && index > 1) ? null : (
-                        <article key={album.albumID} className="albums" style={{ backgroundImage: `url(${album.albumImage})` }}>
-                            <div className="albumControlWrapper">
-                                <div className="albumNameAndArtist">
-                                    <span>{album.albumName}</span>
-                                    {/* <span>{album.artist}</span> */}
+                    albums.map((album, index) =>
+                        !open && index > 1 ? null : (
+                            <article key={album.albumID} className="albums" style={{ backgroundImage: `url(${album.albumImage})` }}>
+                                <div className="albumControlWrapper">
+                                    <div className="albumNameAndArtist">
+                                        <span>{album.albumName}</span>
+                                        {/* <span>{album.artist}</span> */}
+                                    </div>
+                                    <div className="playArrow">
+                                        <span className="material-icons-outlined">play_arrow</span>
+                                    </div>
                                 </div>
-                                <div className="playArrow">
-                                    <span className="material-icons-outlined">play_arrow</span>
-                                </div>
-                            </div>
-                            <img className="albumReflection" src={album.albumImage} />
-                        </article>
-                    ))}
+                                <img className="albumReflection" src={album.albumImage} />
+                            </article>
+                        )
+                    )}
             </div>
         </div>
     )

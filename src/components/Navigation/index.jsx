@@ -76,7 +76,7 @@ export default function Navigation() {
                     position: "fixed",
                     // top: 0,
                     // left: 0,
-                    margin: "0 -8px",
+                    // margin: "0 -8px",
                     width: "calc(100% - 32px)",
                     display: "flex",
                     height: "48px",

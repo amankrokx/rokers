@@ -171,6 +171,9 @@ export default function FeaturedArtist() {
                                 alignItems: "center",
                                 width: "100%",
                                 flexWrap: "wrap",
+                                overflowY: "scroll",
+                                whiteSpace: "pre-line",
+                                height: "calc(100% - 64px)",
                             }}
                         >
                             {songs.map((album, index) =>
