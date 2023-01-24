@@ -1,55 +1,22 @@
-\chapter{Implementation}
+\chapter{Testing}
 
-\section{Working-Methodology}
+Testing is an important phase in the development of any software project. It is essential to ensure that the system functions correctly and efficiently. The Rokers system was thoroughly tested to ensure that it meets the requirements and specifications set forth in the project. The following tests were performed:
+\begin{enumerate}
+    \item \textbf{Functionality test :} The functionality test is used to ensure that all the features of the system work correctly. The test includes checking the functionality of the server, the connection to the Spotify API, the music playback, and the database. The test was performed to ensure that the system can fetch music information and play music as expected.
+    \item \textbf{Performance test :} The performance test is used to ensure that the system can handle a large number of requests and handle them efficiently. The test includes checking the response time of the system, the number of concurrent users that the system can handle, and the system's memory usage. The test was performed to ensure that the system can handle a large number of users without any issues.
+    \item \textbf{Stress test :} The stress test is used to ensure that the system can handle a large number of concurrent users without any issues. The test includes checking the system's response time, the number of concurrent users that the system can handle, and the system's memory usage. The test was performed to ensure that the system can handle a high number of concurrent users without any issues.
+    \item \textbf{Usability test :} The usability test is used to ensure that the system is easy to use and understand for the users. The test includes checking the user interface, the navigation, and the overall user experience. The test was performed to ensure that the system can be used easily and efficiently by the users.
+    \item \textbf{Compatibility test :} The compatibility test is used to ensure that the system can run smoothly on different platforms and devices. The test includes checking the system on different operating systems, browsers, and devices. The test was performed to ensure that the system can be accessed by a wide range of users.
+    
+\end{enumerate}
 
-In the events of initiation of an audio session, the system will go through the\\
-following steps in order to successfully start streaming:\\
-
- The first step of course involves pointing to the media the user wishes to play.\\
- This involves any kind of Audio / Video source from any of the compatible providers \\
- ex: Spotify, YouTube, Gaana, etc.\\
- 
- Time to pass the Gems ! Next , choose the client to share the Content link to.\\
-  This will send it to the STUN / TURN servers to successfully reach the target device\\
-
- The  middleware server helps in\\
- case of any NAT related issues and delivers the content to the correct device associated with you.\\
-
-Finally the content reaches your intended device.\\
-It parses, identifies and resolves the data, fetches the media content \\
-from the corresponding service and proceeds to play it. Handling the audio buffer over to the Hi-Res DAC .\\
-
-The Hi-Res DAC converts the binary audio buffer into a high precision analog sound signal.\\
- This signal is handed over to a Hi-Fi Class AB 15 watt Audio Amplifier.\\
-
-Finally the Hi-Fi Class AB amplifier drives the 2.4 Inch speakers producing your awaited tune.\\
+The system passed all the tests successfully and was deemed ready for deployment.
 
 
-\begin{figure}[H]
-  \caption{Design}
-  \includegraphics[scale=.4]{./implement.png}
-  \\[0.2in]
-\end{figure}
-\begin{figure}[H]
-  \caption{Home Page}
-  \includegraphics[scale=.2]{./screenshot.png}
 
-\end{figure}
-\begin{figure}[H]
-  \caption{Albums View}
-  \includegraphics[scale=.2]{./screenshot1.png}
 
-\end{figure}
-\begin{figure}[H]
-  \caption{Search View}
-  \includegraphics[scale=.2]{./screenshot2.png}
 
-\end{figure}
-\begin{figure}[H]
-  \caption{Recents View}
-  \includegraphics[scale=.2]{./screenshot3.png}
 
-\end{figure}
 
-\pagebreak
+
 
