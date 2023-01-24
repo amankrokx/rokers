@@ -37,7 +37,6 @@ function App() {
         <br></br>
         <br></br>
         <NowPlaying />
-        <div>Hello</div>
       </div>
   )
 }

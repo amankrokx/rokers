@@ -18,6 +18,25 @@ export default function RecentlyPlayed() {
         })
     }, [limit])
 
+    function playByVid (sid) {
+        bring({
+            path: `play`,
+            options: {
+                method: "POST",
+                mode: "cors",
+                cache: "no-cache",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    track: {
+                        id: sid,
+                    }
+                })
+            }
+        })
+    }
+
     return (
         <div
             className="recentlyPlayed"
@@ -101,6 +120,10 @@ export default function RecentlyPlayed() {
                                     style={{
                                         // height: 40,
                                         width: 60,
+                                    }}
+                                    onClick={() => {
+                                        // playSong(item)
+                                        playByVid(item.sid)
                                     }}
                                 >
                                     <span className="material-icons-outlined" style={{ fontSize: 32 }}>

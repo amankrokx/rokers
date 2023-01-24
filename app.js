@@ -6,7 +6,7 @@ import { config } from "dotenv"
 import spotify from './server/spotify/index.js';
 import queue from './server/components/queue/index.js';
 import featuredArtist from './server/components/featuredArtist/index.js';
-
+import {exec} from "child_process"
 
 config()
 // create express app
@@ -115,9 +115,17 @@ app.post('/play', async (req, res) => {
             }
         }
         console.log(song.length)
-        res.json({id})
         const buffer = await spotify.getSongYoutubeBuffer((song.length > 0) ? song[0].vid : id)
-        queue.addSong(buffer)
+        // queue.addSong(buffer)
+        // await queue.vlc.playFile(buffer, {loop: false, novideo: true})
+        console.log(buffer)
+        // await queue.vlc.playFile(buffer)
+        // await queue.vlc.play()
+        await queue.addToQueue(buffer, track)
+        // console.log(await queue.vlc.getPlaylist())
+        // await queue.vlc.play()
+        res.json({id})
+
     } catch (error) {
         res.json({error})
         throw error
@@ -176,17 +184,6 @@ app.get('/search/:query', (req, res) => {
 
 // get featured artist name and album art
 app.get('/featuredArtist', featuredArtist)
-
-app.get('/playPause/:s', (req,res) => {
-    if (req.params.s == 'play') queue.resumePlayback()
-    else if (req.params.s == 'pause') queue.pausePlayback()
-    else if (req.params.s == 'next') queue.playNext()
-    else if (req.params.s == 'prev') queue.prevSong()
-    else if (req.params.s == 'repeat') queue.repeatKro()
-    else if (req.params.s == 'stop') queue.stopPlayback()
-    else 
-    res.json({status : queue.playing})
-})
 
 app.get("/featuredArtistSongs/:id", async (req, res) => {
     // get song details from artistID
@@ -248,7 +245,76 @@ app.get("/syncPlayer", async (req, res) => {
     }
 })
 
+app.get("/command/:c", async (req, res) => {
+    switch(req.params.c) {
+        case 'play' :
+            queue.vlc.toggle_play()
+            break
+        case 'pause' :
+            queue.pause()
+            break
+        case 'next' :
+            queue.vlc.next()
+            break
+        case 'prev' :
+            queue.vlc.prev()
+            break
+        case 'repeat' :
+            queue.vlc.repeat()
+            break
+        case 'stop' :
+            queue.vlc.stop()
+            break
+        case 'playlistInfo' :
+            console.log(await queue.vlc.playlist_info())
+            break
+        default :
+            console.log(await queue.vlc[req.params.c]())
+            break
+    }
+    res.json({status : true})
+})
+    
+
 // listen for requests
 app.listen(3000, () => {
-    console.log("Server is listening on port 3000");
+     console.log("Server is listening on port 3000")
+     // run ngrok
+     const ngrok = exec("ngrok http 3000")
+     ngrok.stdout.on("data", data => {
+         console.log(data)
+     })
+     const interval = setInterval(() => {
+         if (ngrok.pid) {
+             fetch("http://127.0.0.1:4040/api/tunnels", {
+                 method: "GET",
+                 headers: {
+                     "Content-Type": "application/json",
+                 },
+             })
+                 .then(res => res.json())
+                 .then(data => {
+                     console.log(data.tunnels[0].public_url)
+                     const body = new FormData()
+                     body.append("url", data.tunnels[0].public_url)
+                     console.log(body)
+                     fetch("https://rokerss.000webhostapp.com/", {
+                         method: "POST",
+                         body,
+                     })
+                         .then(res => res.text())
+                         .then(data => {
+                             console.log(data)
+                             clearInterval(interval)
+                         })
+                         .catch(err => {
+                             console.log(err)
+                         })
+                 })
+                 .catch(err => {
+                     console.log(err)
+                 })
+         }
+     }, 2000)
+
 });

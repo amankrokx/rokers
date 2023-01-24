@@ -60,7 +60,7 @@
     --hue: 220;
     --holesize: 60%;
     --track-bg: hsl(233, 34%, 92%);
-    --progress: 35%;
+    --progress: 0%;
     
     display: grid;
     align-items: center;
@@ -70,14 +70,15 @@
     font-weight: 700;
     height: 48px;
     width: 48px;
-    font-size: max(10vmin, 1.4rem)
+    font-size: max(10vmin, 1.4rem);
+    transition: all 1s linear;
 }
 
 .RadialProgress::before {
-    --progress: 35%;
     --hue: 220;
     --holesize: 60%;
     --track-bg: hsl(233, 34%, 92%);
+    
     content: '';
     position: absolute;
     border-radius: 50%;
@@ -87,5 +88,7 @@
     mask-image: radial-gradient( transparent var(--holesize), black calc(var(--holesize) + 0.5px) );
     transform: scale(1.05);
     height: 48px;
+    transition: all 1s linear;
+    
     width: 48px;
   }

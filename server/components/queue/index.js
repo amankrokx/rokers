@@ -1,140 +1,78 @@
-import { exec } from "child_process"
+import Player from "vlc-remote"
+import { initializeApp } from "firebase/app"
+import { ref, getDatabase, update, set } from "firebase/database"
+import spotify from "../../spotify/index.js"
+
+const firebaseConfig = {
+    apiKey: "AIzaSyA1_F1pROIduw6oLTxIUpyypPS3iciASk4",
+    authDomain: "rokers-88dad.firebaseapp.com",
+    projectId: "rokers-88dad",
+    storageBucket: "rokers-88dad.appspot.com",
+    messagingSenderId: "472240287143",
+    appId: "1:472240287143:web:edf03ee0c37093d27a5a82",
+    databaseURL: "https://rokers-88dad-default-rtdb.asia-southeast1.firebasedatabase.app",
+}
+const app = initializeApp(firebaseConfig)
+const db = getDatabase(app)
 
 class PlaybackQueue {
     constructor() {
-        this.queue = []
-        this.currentSongIndex = null
-
+        this.vlc = new Player({port : 8088,host : "127.0.0.1"})
+        this.queue = new Array()
+        this.db = db
         this.playing = false
-        this.paused = false
-        this.repeat = false
-        this.shuffle = false
-        this.songInMemory = false
-        this.child = null
-        this.timeLeft = 0
-        this.timer = null
-    }
+        this.ref = ref(this.db, "player")
+        this.vlc.start().then(() => {
+            console.log("VLC Started")
+            update(this.ref, {
+                online: true,
+                playing: false,
+            })
 
-    addSong(song) {
-        this.queue.push(song)
-        if (!this.playing && !this.paused) {
-            this.resumePlayback(0)
-        }
-    }
+            this.vlc.on("error", (error) => {
+                update(this.ref, {
+                    online: false,
+                    playing: false,
+                })
+                console.log(error)
+            })
 
-    removeSong(index) {
-        this.queue.splice(index, 1)
-        if (index === this.currentSongIndex) {
-            if (this.queue.length === 0) {
-                this.stopPlayback()
-            } else {
-                this.resumePlayback(0)
-            }
-        }
-    }
+            this.vlc.on("state", (state) => {
+                console.log("state------------------",state)
+            })
 
-    resumePlayback(index) {
-        if (index >= this.queue.length) throw new Error("Index out of bounds")
-        
-        this.playing = true
-        this.paused = false
-        this.currentSongIndex = index
-
-        if (this.songInMemory && this.paused) {
-            this.continuePlayback()
-        } else if (this.songInMemory && !this.paused) {
-            // do nothing
-            return
-        } else {
-            this.playSong(this.queue[index])
-        }
-    }
-    
-    // play song with ffplay using exec
-    async playSong (url) {
-        if (this.child) {
-            this.child.kill()
-            this.child = null
-        }
-        this.songInMemory = true
-        this.child = exec(`vlc -I dummy --dummy-quiet "${url}"`)
-        this.child.on('message', (message) => {
-            console.log(message)
-        })
-        this.child.on('exit', () => {
-            this.songInMemory = false
-            this.child = null
-            if (this.repeat) {
-                this.resumePlayback(this.currentSongIndex)
-            } else if (this.currentSongIndex + 1 < this.queue.length) {
-                this.resumePlayback(this.currentSongIndex + 1)
-            } else {
-                this.stopPlayback()
-            }
+            this.vlc.on("play", (path) => {
+                // add to realtime database using firebase-admin
+                set(this.ref, {
+                    playing: true,
+                    online: true,
+                    added: Date.now(),
+                    song: this.queue[0],
+                })
+                this.playing = true
+                console.log("Playing--------------------" )
+            })
         })
 
     }
 
-    continuePlayback() {
-        if (this.child) {
-            this.child.send('SIGCONT')
-            this.playing = true
-            this.paused = false
+    async addToQueue (url, track) {
+        if (!Object.hasOwnProperty.call(track, "duration_ms")) {
+            track = (await spotify.spotifyApi.getTrack(track.id)).body
         }
-        else console.log("No child process")
+        track.download = url
+        this.queue.push(track)
+        await this.vlc.enqueue(url)
+        await this.vlc.toggle_play()
     }
 
-    pausePlayback() {
-        if (this.child) {
-            this.child.send('SIGSTOP')
-            this.playing = false
-            this.paused = true
-        }
-        else console.log("No child process")
-    }
-
-    playNext() {
-        if (this.child) {
-            this.child.kill()
-            this.child = null
-            this.songInMemory = false
-        }
-        if (this.currentSongIndex + 1 < this.queue.length) {
-            this.resumePlayback(this.currentSongIndex + 1)
-        } else {
-            this.stopPlayback()
-        }
-    }
-
-    prevSong() {
-        if (this.child) {
-            this.child.kill()
-            this.child = null
-            this.songInMemory = false
-        }
-        if (this.currentSongIndex - 1 >= 0) {
-            this.resumePlayback(this.currentSongIndex - 1)
-        } else {
-            this.stopPlayback()
-        }
-    }
-
-    repeatKro() {
-        this.repeat = !this.repeat
-    }
-
-
-
-    stopPlayback() {
-        if (this.child) {
-            this.queue = []
-            this.child.kill()
-            this.child = null
-            this.playing = false
-            this.paused = false
-            this.currentSongIndex = null
-        }
-        else console.log("No child process bsdk")
+    pause () {
+        this.playing = !this.playing
+        update(this.ref, {
+            playing: this.playing,
+            online: true,
+        })
+        this.vlc.pause()
     }
 
 
