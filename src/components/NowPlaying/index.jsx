@@ -3,11 +3,14 @@ import bring from "../bring"
 import { onValue, ref } from "firebase/database";
 import db from "../../firebase/database";
 import "./index.css"
+import Controls from "../Controls";
 
 
 export default function NowPlaying() {
     const [player, setPlayer] = useState(null)
     const [timer, setTimer] = useState(null)
+    const [height, setHeight] = useState(112)
+    const [y, setY] = useState(0)
 
     useEffect(() => {
         onValue(ref(db, "player"), (snapshot) => {
@@ -15,10 +18,10 @@ export default function NowPlaying() {
             clearInterval(timer)
         })
     }, [])
-    
+
     useEffect(() => {
         try {
-            
+            if (timer) clearInterval(timer)
             console.log(player)
             if (!player) { return }
             const added = new Date(player.added)
@@ -76,13 +79,28 @@ export default function NowPlaying() {
     return (
         <div
             className="nowPlaying"
+            onPointerOver={() => setHeight(160)}
+            onPointerLeave={() => setHeight(112)}
+            onTouchMove={(e) => {
+                if (e.touches[0].clientY < y) {
+                    setHeight(160)
+                }
+                else {
+                    setHeight(112)
+                }
+                console.log(e.touches[0].clientY - y)
+
+            }}
+            onTouchStart={(e) => {
+                setY(e.touches[0].clientY)
+            }}
             style={{
                 display: "flex",
                 position: "fixed",
-                flexDirection: "row",
+                flexDirection: "column",
                 padding: "16px",
                 alignContent: "center",
-                height: "112px",
+                height,
                 borderRadius: 16,
                 bottom: 24,
                 width: "calc(100% - 32px)",
@@ -90,6 +108,8 @@ export default function NowPlaying() {
                 zIndex: 98,
                 minWidth: "346px",
                 maxWidth: "440px",
+                overflow: "hidden",
+                transition: "height 0.2s ease-in-out",
                 // margin: "0 -8px",
             }}
         >
@@ -123,6 +143,7 @@ export default function NowPlaying() {
                     </span>
                 </div>
             </div>
+            <Controls />
         </div>
     )
 }

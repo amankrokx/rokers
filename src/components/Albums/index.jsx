@@ -17,7 +17,17 @@ export default function Albums() {
         })
     }, [])
 
-    const toggleExpand = () => {
+    function playAlbum (id) {
+        bring({
+            path: "playAlbum/" + id,
+            options: {
+                method: "GET",
+            }
+        }).then((res) => res.json())
+        .then(toggleExpand)
+    }
+
+    function toggleExpand () {
         albumContainer.current.classList.toggle("expand")
         albumContainer.current.classList.toggle("albumContainer")
         setOpen(!open)
@@ -78,7 +88,7 @@ export default function Albums() {
                                         <span>{album.albumName}</span>
                                         {/* <span>{album.artist}</span> */}
                                     </div>
-                                    <div className="playArrow">
+                                    <div className="playArrow" onClick={() => playAlbum(album.albumID)}>
                                         <span className="material-icons-outlined">play_arrow</span>
                                     </div>
                                 </div>

@@ -1,7 +1,8 @@
 import React, { useState, useRef, useCallback } from "react";
 import { debounce } from "debounce"
 import bring from "../bring"
-import './index.css';
+import './index.css'
+import { useEffect } from "react";
 
 export default function Navigation() {
     const [search, setSearch] = useState(false);
@@ -9,6 +10,7 @@ export default function Navigation() {
     const [searchData, setSearchData] = useState({})
     const [inTransit, setInTransit] = useState(false)
     const [controller, setController] = useState(new AbortController())
+    const appTitle = useRef(null)
     // debounced search
     const debouncedSearch = useCallback(
         debounce(() => {
@@ -105,10 +107,19 @@ export default function Navigation() {
                     </span>
                 </div>
                 <div
+                    className="appTitle"
+                    ref={appTitle}
                     style={{
                         fontsize: "large",
                         fontWeight: "bold",
                         alignContent: "center",
+                        fontSize: 24,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontVariant: "small-caps",
+                        tectSpacing: "0.5em",
+
                     }}
                 >
                     Rokers

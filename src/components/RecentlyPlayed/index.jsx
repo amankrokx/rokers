@@ -18,6 +18,29 @@ export default function RecentlyPlayed() {
         })
     }, [limit])
 
+    function setFavourite (sid, index) {
+        bring({
+            path: "toggleFavourite/" + sid,
+            options: {
+                method: "GET",
+            },
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    console.error(data.error)
+                    return
+                }
+                console.log(data)
+                let temp = [...recentlyPlayed]
+                temp[index].favourite = !temp[index].favourite
+                setRecentlyPlayed(temp)
+            })
+            .catch(err => {
+                console.error(err)
+            })
+    }
+
     function playByVid (sid) {
         bring({
             path: `play`,
@@ -105,6 +128,7 @@ export default function RecentlyPlayed() {
                                         width: 60,
                                         marginRight: 8,
                                     }}
+                                    onClick={() => setFavourite(item.sid, index)}
                                 >
                                     <span
                                         className="material-icons-outlined"

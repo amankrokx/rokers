@@ -107,6 +107,15 @@ export default function FeaturedArtist() {
                                     borderRadius: 16,
                                     marginRight: 8,
                                 }}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    bring({
+                                        path: "playArtist/" + artist.artistID,
+                                        options: {
+                                            method: "GET",
+                                        }
+                                    })
+                                }}
                             >
                                 <span className="material-icons-outlined" style={{ fontSize: 32 }}>
                                     play_arrow
@@ -184,7 +193,22 @@ export default function FeaturedArtist() {
                                                 <span>{album.name}</span>
                                                 {/* <span>{album.artist}</span> */}
                                             </div>
-                                            <div className="playArrow">
+                                            <div className="playArrow" onClick={() => {
+                                                bring({
+                                                    path: "play",
+                                                    options: {
+                                                        method: "POST",
+                                                        headers: {
+                                                            "Content-Type": "application/json",
+                                                        },
+                                                        body: JSON.stringify({
+                                                            track: {
+                                                                id: album.sid,
+                                                            }
+                                                        }),
+                                                    }
+                                                })
+                                            }}>
                                                 <span className="material-icons-outlined">play_arrow</span>
                                             </div>
                                         </div>

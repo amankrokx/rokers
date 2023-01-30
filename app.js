@@ -6,7 +6,8 @@ import { config } from "dotenv"
 import spotify from './server/spotify/index.js';
 import queue from './server/components/queue/index.js';
 import featuredArtist from './server/components/featuredArtist/index.js';
-import {exec} from "child_process"
+import { exec } from "child_process"
+import { set } from 'firebase/database';
 
 config()
 // create express app
@@ -29,108 +30,45 @@ app.use((req, res, next) => {
 // serve static files from /dist
 app.use(express.static('dist'))
 
-
-// define a simple route
-app.get('/',async (req, res) => {
-    const result = await insert('songs', {
-        sid : '123',
-        title : 'test',
-        albumID : 1,
-        lastPlayed : new Date(),
-        albumArt : 'test'.toString('base64'),
-        length : 123,
-        playCount : 1,
-        // pid : 1,
-        favourite : true
-    });
-    res.json({"result": result});
-})
-
 app.post('/play', async (req, res) => {
     try {
-        // inxert song into database
-        // get youtube id
-        const track = req.body.track
-
-        // query from songs table to see if song exists
-        // if it does, update playCount
-        // if it doesn't, insert into songs table
-        let id
-        const song = await query(`SELECT * FROM songs WHERE sid = '${track.id}'`)
-        console.log(song)
-        if (song.length > 0) {
-            // update playCount in songs table, update lastPlayed 
-            await query(`UPDATE songs SET playCount = playCount + 1 WHERE sid = '${track.id}'`)
-        } else {
-            id = await spotify.getSongYoutube(track)
-            console.log(id)
-            await insert('songs', {  
-                sid : req.body.track.id,
-                vid : id,
-                name : req.body.track.name,
-                albumID : req.body.track.album.id,
-                lastPlayed : new Date(),
-                albumArt : req.body.track.album.images[0].url,
-                length : req.body.track.duration_ms,
-                playCount : 1,
-                // pid : 1,
-                favourite : false
-            });
-            // Populate artists table
-            req.body.track.artists.forEach(async artist => {
-                // query from artists table to see if artist exists
-                // if it does, update songCount
-                // if it doesn't, insert into artists table
-                const artistQuery = await query(`SELECT * FROM artists WHERE artistID = '${artist.id}'`)
-                if (artistQuery.length > 0) {
-                    await query(`UPDATE artists SET songCount = songCount + 1 WHERE artistID = '${artist.id}'`)
-                } else {
-                    await insert("artists", {
-                        artistID: artist.id,
-                        artistName: artist.name,
-                        songCount: 1,
-                        favourite: false,
-                    })
-                }
-                await insert('songArtists', {
-                    sid : req.body.track.id,
-                    artistID : artist.id
-                })
-            })
-            // Populate albums table    
-            // query from albums table to see if album exists
-            // if it does, update songCount
-            // if it doesn't, insert into albums table
-            const album = await query(`SELECT * FROM albums WHERE albumID = '${req.body.track.album.id}'`)
-            if (album.length > 0) {
-                await query(`UPDATE albums SET songCount = songCount + 1 WHERE albumID = '${req.body.track.album.id}'`)
-            } else {
-                await insert("albums", {
-                    albumID: req.body.track.album.id,
-                    albumName: req.body.track.album.name,
-                    albumImage: req.body.track.album.images[0].url,
-                    songCount: 1,
-                    favourite: false,
-                })
-            }
-        }
-        console.log(song.length)
-        const buffer = await spotify.getSongYoutubeBuffer((song.length > 0) ? song[0].vid : id)
-        // queue.addSong(buffer)
-        // await queue.vlc.playFile(buffer, {loop: false, novideo: true})
-        console.log(buffer)
-        // await queue.vlc.playFile(buffer)
-        // await queue.vlc.play()
-        await queue.addToQueue(buffer, track)
-        // console.log(await queue.vlc.getPlaylist())
-        // await queue.vlc.play()
+        const id = await queue.play(req.body.track)
         res.json({id})
-
     } catch (error) {
         res.json({error})
         throw error
     }
 
+})
+
+app.get("/playAlbum/:albumID", async (req, res) => {
+    try {
+        const songs = await query(`SELECT * FROM songs WHERE albumID = '${req.params.albumID}';`)
+        queue.clearQueue()
+        songs.forEach(async song => {
+            await queue.play({id: song.sid})
+        })
+        res.json({songs})
+
+    } catch (error) {
+        res.json({error})
+        throw error
+    }
+})
+
+app.get("/playArtist/:artistID", async (req, res) => {
+    try {
+        const songs = await query(`SELECT * FROM songs join songArtists on songs.sid = songArtists.sid WHERE songArtists.artistID = '${req.params.artistID}';`)
+        queue.clearQueue()
+        songs.forEach(async song => {
+            await queue.play({id: song.sid})
+        })
+        res.json({songs})
+
+    } catch (error) {
+        res.json({error})
+        throw error
+    }
 })
 
 // return array of albums on GET request
@@ -176,10 +114,6 @@ app.get('/search/:query', (req, res) => {
         res.json(err)
     })
     
-    // connection.query(`SELECT * FROM songs WHERE sid = '${req.params.id}'`, (err, result) => {
-    //     if (err) throw err;
-    //     res.json(result);
-    // });
 })
 
 // get featured artist name and album art
@@ -209,7 +143,9 @@ app.get("/recentlyPlayed/:limit/:offset", async (req, res) => {
         const offset = req.params.offset
         console.log(limit, offset)
 
-        const songs = await query(`select * from songs join albums on songs.albumID = albums.albumID order by lastPlayed desc limit ${limit} offset ${offset};`)
+        const songs = await query(
+            `select songs.sid, songs.vid, songs.name, songs.albumID, songs.lastPlayed, songs.albumArt, songs.length, songs.playCount, songs.pid, songs.favourite, albums.albumName from songs join albums on songs.albumID = albums.albumID order by lastPlayed desc limit ${limit} offset ${offset};`
+        )
         res.json(songs)
     } catch (error) {
         res.json({error})
@@ -231,49 +167,55 @@ app.get("/favouriteSongs/:limit/:offset", async (req, res) => {
     }
 })
 
-app.get("/syncPlayer", async (req, res) => {
-    // sync player with queue
+app.get("/toggleFavourite/:sid", async (req, res) => {
+    // set favourite song by id
+
     try {
-        res.json({
-            playing : queue.playing,
-            repeat : queue.repeat,
-            song : queue.queue[queue.currentSongIndex],
-            volume : queue.volume,
-        })
+        const songs = await query(`update songs set favourite = !favourite where sid = '${req.params.sid}';`)
+        res.json({sid: req.params.sid})
     } catch (error) {
         res.json({error})
     }
 })
 
 app.get("/command/:c", async (req, res) => {
-    switch(req.params.c) {
-        case 'play' :
+    let command, value
+    if (req.params.c.includes('-'))
+        [command, value] = req.params.c.split('-')
+    else [command, value] = [req.params.c, null]
+    switch (command) {
+        case "play":
             queue.vlc.toggle_play()
             break
-        case 'pause' :
+        case "pause":
             queue.pause()
             break
-        case 'next' :
-            queue.vlc.next()
+        case "volume":
+            queue.vlc.volume(value)
             break
-        case 'prev' :
-            queue.vlc.prev()
+        case "next":
+            queue.next()
             break
-        case 'repeat' :
+        case "prev":
+            queue.prev()
+            break
+        case "repeat":
             queue.vlc.repeat()
             break
-        case 'stop' :
+        case "stop":
             queue.vlc.stop()
             break
-        case 'playlistInfo' :
+        case "playlistInfo":
             console.log(await queue.vlc.playlist_info())
             break
-        default :
+        default:
             console.log(await queue.vlc[req.params.c]())
             break
     }
     res.json({status : true})
 })
+
+
     
 
 // listen for requests
@@ -302,14 +244,14 @@ app.listen(3000, () => {
                          method: "POST",
                          body,
                      })
-                         .then(res => res.text())
-                         .then(data => {
-                             console.log(data)
-                             clearInterval(interval)
-                         })
-                         .catch(err => {
-                             console.log(err)
-                         })
+                        .then(res => res.text())
+                        .then(data => {
+                            console.log(data)
+                            clearInterval(interval)
+                        })
+                        .catch(err => {
+                            console.log(err)
+                        })
                  })
                  .catch(err => {
                      console.log(err)

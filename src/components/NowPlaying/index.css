@@ -1,9 +1,11 @@
 
 .root div.nowPlaying div.searchResult div.info div.title{
     width: 100%;
+    overflow: hidden;
 }
 .root div.nowPlaying div.searchResult div.info div.aa div.artist {
     margin-right: 16px; 
+    overflow: hidden;
 }
 
 .root div.nowPlaying div.searchResult div.info div.aa {
