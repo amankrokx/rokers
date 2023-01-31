@@ -1,11 +1,10 @@
-import fs from 'fs';
-import { config } from 'dotenv';
+import fs from "fs"
+import { config } from "dotenv"
 import SpotifyToYoutube from "spotify-to-youtube"
 import SpotifyWebApi from "spotify-web-api-node"
-import ytdl from 'ytdl-core';
+import ytdl from "ytdl-core"
 
-
-config();
+config()
 if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) {
     console.log("Missing spotify credentials in ENV file\n SPOTIFY_CLIENT_ID\n SPOTIFY_CLIENT_SECRET")
     process.exit(1)
@@ -16,17 +15,22 @@ class Spotify {
         this.clientID = clientID
         this.clientSecret = clientSecret
         // check if token file exists and read it
-        if (fs.existsSync('./token.json')) {
-            this.token = JSON.parse(fs.readFileSync('./token.json', 'utf8'))
+        if (fs.existsSync("./token.json")) {
+            this.token = JSON.parse(fs.readFileSync("./token.json", "utf8"))
             console.log("Token loaded", this.token)
-            if (this.token.expires_at < Date.now())
-                (async () => await this.refreshToken())()
-            }
-            else (async () => await this.refreshToken())()
+            if (this.token.expires_at < Date.now()) (async () => {
+                await this.refreshToken()
+                this.spotifyApi = new SpotifyWebApi()
+                this.spotifyApi.setAccessToken(this.token.access_token)
+                this.spotifyToYoutube = SpotifyToYoutube(this.spotifyApi)
+            })()
+        } else (async () => {
+            await this.refreshToken()
+            this.spotifyApi = new SpotifyWebApi()
+            this.spotifyApi.setAccessToken(this.token.access_token)
+            this.spotifyToYoutube = SpotifyToYoutube(this.spotifyApi)
+        })()
 
-        this.spotifyApi = new SpotifyWebApi()
-        this.spotifyApi.setAccessToken(this.token.access_token)
-        this.spotifyToYoutube = SpotifyToYoutube(this.spotifyApi)
     }
 
     async refreshToken() {
@@ -36,7 +40,7 @@ class Spotify {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
-                    "Authorization": "Basic " + Buffer.from(this.clientID + ":" + this.clientSecret).toString("base64"),
+                    Authorization: "Basic " + Buffer.from(this.clientID + ":" + this.clientSecret).toString("base64"),
                 },
                 body: "grant_type=client_credentials",
             })
@@ -57,9 +61,9 @@ class Spotify {
 
     getSong(id) {
         return new Promise(async (resolve, reject) => {
-            if (this.token.expires_at < Date.now())
-            await this.refreshToken()
-            this.spotifyApi.getTrack(id)
+            if (this.token.expires_at < Date.now()) await this.refreshToken()
+            this.spotifyApi
+                .getTrack(id)
                 .then(data => {
                     console.log(data)
                     resolve(data)
@@ -72,15 +76,14 @@ class Spotify {
     }
 
     /**
-     * 
-     * @param {*} id  
+     *
+     * @param {*} id
      * @returns String youtube id
      */
     getSongYoutube(id) {
         return new Promise((resolve, reject) => {
             this.spotifyToYoutube(id)
                 .then(data => {
-
                     // console.log("success",data)
                     resolve(data)
                 })
@@ -95,8 +98,8 @@ class Spotify {
         return new Promise(async (resolve, reject) => {
             try {
                 // get audio buffer from ytdl
-                let info = await ytdl.getInfo(id);
-                let format = ytdl.chooseFormat(info.formats, { quality: '251' });
+                let info = await ytdl.getInfo(id)
+                let format = ytdl.chooseFormat(info.formats, { quality: "251" })
                 // console.log('Format found!', format.url);
                 resolve(format.url)
                 // stroe readable stream in a buffer
@@ -112,7 +115,6 @@ class Spotify {
                 // readable.on('error', (err) => {
                 //     reject(err)
                 // })
-                
             } catch (error) {
                 reject(error)
             }
@@ -120,7 +122,7 @@ class Spotify {
     }
 
     /**
-     * 
+     *
      * @param {string} query
      * @param {string} type
      * @param {number} limit
@@ -130,30 +132,29 @@ class Spotify {
      * search("test", "track", 10, 0)
      * search("test", "track", 10)
      * search("test", "track")
-     * 
+     *
      * // search for tracks
      * search("test")
-     * 
+     *
      */
-    searchSong({ query, types=['track'],limit = 10, offset = 0, region = "IN" }) {
+    searchSong({ query, types = ["track"], limit = 10, offset = 0, region = "IN" }) {
         return new Promise(async (resolve, reject) => {
-            if (this.token.expires_at < Date.now())
-                await this.refreshToken()
+            if (this.token.expires_at < Date.now()) await this.refreshToken()
 
-            this.spotifyApi.searchTracks(query, { limit, offset, market: region })
-            // fetch(`https://api.spotify.com/v1/search?q=${query}&type=${types.join(',')}&include_external=audio&limit=${limit}&market=${region}&offset=${offset}`, {
-            //     method: "GET",
-            //     headers: {
-            //         "Content-type": "application/json",
-            //         "Authorization": "Bearer " + this.token.access_token,
-            //     },
-            // })
-            //     .then(res => res.json())
+            this.spotifyApi
+                .searchTracks(query, { limit, offset, market: region })
+                // fetch(`https://api.spotify.com/v1/search?q=${query}&type=${types.join(',')}&include_external=audio&limit=${limit}&market=${region}&offset=${offset}`, {
+                //     method: "GET",
+                //     headers: {
+                //         "Content-type": "application/json",
+                //         "Authorization": "Bearer " + this.token.access_token,
+                //     },
+                // })
+                //     .then(res => res.json())
                 .then(data => resolve(data.body))
                 .catch(err => reject(err))
         })
     }
-        
 }
 
 const spotify = new Spotify(process.env.SPOTIFY_CLIENT_ID, process.env.SPOTIFY_CLIENT_SECRET)
