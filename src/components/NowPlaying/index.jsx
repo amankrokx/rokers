@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import bring from "../bring"
 import { onValue, ref } from "firebase/database";
 import db from "../../firebase/database";
 import "./index.css"
 import Controls from "../Controls";
+import { ControlContext } from "../ControlContext";
 
 
 export default function NowPlaying() {
-    const [player, setPlayer] = useState(null)
+    const { togglePlay, height, setHeight, player, setPlayer } = useContext(ControlContext)
     const [timer, setTimer] = useState(null)
-    const [height, setHeight] = useState(112)
     const [y, setY] = useState(0)
 
     useEffect(() => {
@@ -62,19 +62,6 @@ export default function NowPlaying() {
         }
 
     }, [player])
-
-    function togglePlay() {
-        if (player) {
-            bring({
-                path: "command/pause",
-                options: {
-                    method: "GET",
-                    mode: "cors",
-                    cache: "no-cache",
-                }
-            })
-        }
-    }
 
     return (
         <div

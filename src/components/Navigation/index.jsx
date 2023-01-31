@@ -3,6 +3,7 @@ import { debounce } from "debounce"
 import bring from "../bring"
 import './index.css'
 import { useEffect } from "react";
+import Speech from "../Speech";
 
 export default function Navigation() {
     const [search, setSearch] = useState(false);
@@ -90,22 +91,7 @@ export default function Navigation() {
                     zIndex: 100,
                 }}
             >
-                <div
-                    className="playArrow"
-                    style={{
-                        height: "48px",
-                        width: "48px",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        backgroundColor: "var(--container)",
-                        borderRadius: 16,
-                    }}
-                >
-                    <span className="material-icons-outlined" style={{ fontSize: 32 }}>
-                        grid_view
-                    </span>
-                </div>
+                <Speech />
                 <div
                     className="appTitle"
                     ref={appTitle}

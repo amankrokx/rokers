@@ -32,6 +32,7 @@ app.use(express.static('dist'))
 
 app.post('/play', async (req, res) => {
     try {
+        console.log("trying to play song")
         const id = await queue.play(req.body.track)
         res.json({id})
     } catch (error) {
@@ -103,10 +104,11 @@ app.get('/songs', (req, res) => {
 
 // get song by id
 app.get('/search/:query', (req, res) => {
+    // search for song in spotify
     spotify.searchSong({
         query : req.params.query,
-        limit : 10,
-        offset : 0,
+        limit : req.query.limit || 10,
+        offset : req.query.offset || 0,
         type : 'track',
     }).then(data => {
         res.json(data)
