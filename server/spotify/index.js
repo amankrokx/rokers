@@ -15,21 +15,32 @@ class Spotify {
         this.clientID = clientID
         this.clientSecret = clientSecret
         // check if token file exists and read it
-        if (fs.existsSync("./token.json")) {
-            this.token = JSON.parse(fs.readFileSync("./token.json", "utf8"))
-            console.log("Token loaded", this.token)
-            if (this.token.expires_at < Date.now()) (async () => {
+        try {
+            
+            if (fs.existsSync("./token.json")) {
+                this.token = JSON.parse(fs.readFileSync("./token.json", "utf8"))
+                console.log("Token loaded", this.token)
+                if (this.token.expires_at < Date.now()) (async () => {
+                    await this.refreshToken()
+                    this.spotifyApi = new SpotifyWebApi()
+                    this.spotifyApi.setAccessToken(this.token.access_token)
+                    this.spotifyToYoutube = SpotifyToYoutube(this.spotifyApi)
+                })()
+                else {
+                    this.spotifyApi = new SpotifyWebApi()
+                    this.spotifyApi.setAccessToken(this.token.access_token)
+                    this.spotifyToYoutube = SpotifyToYoutube(this.spotifyApi)
+                }
+            } else (async () => {
                 await this.refreshToken()
+
                 this.spotifyApi = new SpotifyWebApi()
                 this.spotifyApi.setAccessToken(this.token.access_token)
                 this.spotifyToYoutube = SpotifyToYoutube(this.spotifyApi)
             })()
-        } else (async () => {
-            await this.refreshToken()
-            this.spotifyApi = new SpotifyWebApi()
-            this.spotifyApi.setAccessToken(this.token.access_token)
-            this.spotifyToYoutube = SpotifyToYoutube(this.spotifyApi)
-        })()
+        } catch (error) {
+            throw error
+        }
 
     }
 
