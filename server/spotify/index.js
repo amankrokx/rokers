@@ -4,7 +4,12 @@ import SpotifyToYoutube from "spotify-to-youtube"
 import SpotifyWebApi from "spotify-web-api-node"
 import ytdl from 'ytdl-core';
 
+
 config();
+if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) {
+    console.log("Missing spotify credentials in ENV file\n SPOTIFY_CLIENT_ID\n SPOTIFY_CLIENT_SECRET")
+    process.exit(1)
+}
 
 class Spotify {
     constructor(clientID, clientSecret) {
