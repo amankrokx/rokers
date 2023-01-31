@@ -114,8 +114,9 @@ function App() {
                     flexDirection: "column",
                     padding: "8px 16px",
                     alignContent: "center",
-                    minWidth: "346px",
-                    maxWidth: "440px",
+                    // width: 370
+                    // minWidth: "346px",
+                    maxWidth: "390px",
                 }}
             >
                 <Navigation />

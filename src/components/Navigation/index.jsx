@@ -80,13 +80,14 @@ export default function Navigation() {
                     // top: 0,
                     // left: 0,
                     // margin: "0 -8px",
-                    width: "calc(100% - 32px)",
+                    // width: "calc(100% - 32px)",
+                    width: 360,
                     display: "flex",
                     height: "48px",
                     flexDirection: "row",
                     justifyContent: "space-between",
-                    minWidth: "346px",
-                    maxWidth: "440px",
+                    // minWidth: "346px",
+                    // maxWidth: "440px",
                     // width: "100%"
                     zIndex: 100,
                 }}

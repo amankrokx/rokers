@@ -68,17 +68,15 @@ export default function NowPlaying() {
             className="nowPlaying"
             onPointerOver={() => setHeight(160)}
             onPointerLeave={() => setHeight(112)}
-            onTouchMove={(e) => {
+            onTouchMove={e => {
                 if (e.touches[0].clientY < y) {
                     setHeight(160)
-                }
-                else {
+                } else {
                     setHeight(112)
                 }
                 console.log(e.touches[0].clientY - y)
-
             }}
-            onTouchStart={(e) => {
+            onTouchStart={e => {
                 setY(e.touches[0].clientY)
             }}
             style={{
@@ -90,13 +88,15 @@ export default function NowPlaying() {
                 height,
                 borderRadius: 16,
                 bottom: 24,
-                width: "calc(100% - 32px)",
+                // width: "calc(100% - 32px)",
+                width: 360,
                 backgroundColor: "var(--container)",
                 zIndex: 98,
-                minWidth: "346px",
-                maxWidth: "440px",
+                // minWidth: "346px",
+                // maxWidth: "440px",
                 overflow: "hidden",
                 transition: "height 0.2s ease-in-out",
+                boxShadow: "0px 0px 36px var(--st)",
                 // margin: "0 -8px",
             }}
         >
@@ -126,7 +126,7 @@ export default function NowPlaying() {
                 </div>
                 <div className="playArrow playButton RadialProgress" role="progressbar" aria-valuenow="5" aria-valuemin="0" aria-valuemax="100" onClick={togglePlay}>
                     <span className="material-icons-outlined" style={{ fontSize: 32 }}>
-                        { player?.playing ? "pause" : "play_arrow"}
+                        {player?.playing ? "pause" : "play_arrow"}
                     </span>
                 </div>
             </div>
