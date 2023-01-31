@@ -127,6 +127,22 @@ class PlaybackQueue {
                 } else {
                     id = await spotify.getSongYoutube(track)
                     console.log(id)
+                    // Populate albums table
+                    // query from albums table to see if album exists
+                    // if it does, update songCount
+                    // if it doesn't, insert into albums table
+                    const album = await query(`SELECT * FROM albums WHERE albumID = '${track.album.id}'`)
+                    if (album.length > 0) {
+                        await query(`UPDATE albums SET songCount = songCount + 1 WHERE albumID = '${track.album.id}'`)
+                    } else {
+                        await insert("albums", {
+                            albumID: track.album.id,
+                            albumName: track.album.name,
+                            albumImage: track.album.images[0].url,
+                            songCount: 1,
+                            favourite: false,
+                        })
+                    }
                     await insert("songs", {
                         sid: track.id,
                         vid: id,
@@ -160,22 +176,6 @@ class PlaybackQueue {
                             artistID: artist.id,
                         })
                     })
-                    // Populate albums table
-                    // query from albums table to see if album exists
-                    // if it does, update songCount
-                    // if it doesn't, insert into albums table
-                    const album = await query(`SELECT * FROM albums WHERE albumID = '${track.album.id}'`)
-                    if (album.length > 0) {
-                        await query(`UPDATE albums SET songCount = songCount + 1 WHERE albumID = '${track.album.id}'`)
-                    } else {
-                        await insert("albums", {
-                            albumID: track.album.id,
-                            albumName: track.album.name,
-                            albumImage: track.album.images[0].url,
-                            songCount: 1,
-                            favourite: false,
-                        })
-                    }
                 }
                 const buffer = await spotify.getSongYoutubeBuffer(song.length > 0 ? song[0].vid : id)
                 console.log(buffer)

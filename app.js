@@ -7,7 +7,14 @@ import spotify from './server/spotify/index.js';
 import queue from './server/components/queue/index.js';
 import featuredArtist from './server/components/featuredArtist/index.js';
 import { exec } from "child_process"
-import { set } from 'firebase/database';
+
+process.on('unhandledRejection', function (err) {
+    console.error(err)
+});
+
+process.on('uncaughtException', function (err) {
+    console.error(err)
+});
 
 config()
 // create express app
